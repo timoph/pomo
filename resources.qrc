@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/pomo/main.qml</file>
+        <file>images/pomo.png</file>
+        <file>images/pomo.svg</file>
+        <file>images/pomogs.png</file>
+    </qresource>
+</RCC>
