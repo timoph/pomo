@@ -1,7 +1,7 @@
 # pomo.pro
 
 contains(QT_VERSION, ^4.*) {
-    QT += core gui declarative
+    QT += core gui quick
     message("building for Qt4")
 }
 
@@ -10,8 +10,6 @@ contains(QT_VERSION, ^5.*) {
     DEFINES += QT5BUILD
     message("building for Qt5")
 }
-
-QML_IMPORT_PATH =
 
 macx {
     CONFIG += app_bundle
