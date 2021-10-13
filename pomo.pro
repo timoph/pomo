@@ -1,14 +1,10 @@
 # pomo.pro
+TARGET = pomo
 
-contains(QT_VERSION, ^4.*) {
-    QT += core gui quick
-    message("building for Qt4")
-}
+QT += core gui quick
 
-contains(QT_VERSION, ^5.*) {
-    QT += core widgets quick multimedia
-    DEFINES += QT5BUILD
-    message("building for Qt5")
+equals(QT_MAJOR_VERSION, 5) {
+    QT += widgets
 }
 
 macx {
@@ -20,25 +16,12 @@ win {
     ICON = images/pomo.png
 }
 
-qmlui {
-    DEFINES += POMOQMLUI
-    message("using qml ui")
-}
-
 SOURCES += main.cpp \
-    engine.cpp \
-    mainwindow.cpp \
-    mainwidget.cpp \
-    settingsdialog.cpp
+    engine.cpp
 
 RESOURCES += \
     resources.qrc
 
 HEADERS += \
-    engine.h \
-    mainwindow.h \
-    mainwidget.h \
-    settingsdialog.h
+    engine.h
 
-OTHER_FILES += \
-    qml/pomo/main.qml

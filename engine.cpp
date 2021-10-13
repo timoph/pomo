@@ -1,11 +1,11 @@
 /*
- Pomo - Crossplatform Pomodoro application
- Copyright (c) 2013 Timo Härkönen
+ Pomo - a simple Pomodoro application
+ Copyright (c) 2013, 2021 Timo Härkönen
 
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 2
- of the License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,8 +13,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "engine.h"
@@ -22,11 +21,6 @@
 #include <QDebug>
 #include <QMenu>
 #include <QApplication>
-
-#ifdef QT5BUILD
-#include <QMediaPlayer>
-#include <QMediaContent>
-#endif
 
 #include <QSettings>
 
@@ -39,35 +33,23 @@ Engine::Engine(QObject *parent) :
     pTimer->setInterval(1000);
     mActive = false;
     mPomodoroLength = 25;
-    mElapsed = "0";
+    mElapsed = "0:00";
     mElapsedSeconds = 0;
     mWindowVisible = true;
 
     pSystray = new QSystemTrayIcon(this);
-#ifdef Q_OS_WIN
-    pSystray->setIcon(QIcon(":/images/pomo.svg"));
-#elif defined(Q_OS_MAC)
-    pSystray->setIcon(QIcon(":/images/pomogs.png"));
-#else
     pSystray->setIcon(QIcon(":/images/pomo.png"));
-#endif
     pMenu = new QMenu;
     pVisibilityAction = pMenu->addAction("hide");
-    pSettingsAction = pMenu->addAction("settings");
     pQuitAction = pMenu->addAction("quit");
     pSystray->setContextMenu(pMenu);
     pSystray->setVisible(true);
-
-#ifdef QT5BUILD
-    pPlayer = new QMediaPlayer(this);
-#endif
 
     readSettings();
 
     connect(pTimer, SIGNAL(timeout()), this, SLOT(tick()));
     connect(pVisibilityAction, SIGNAL(triggered()), this, SLOT(toggleVisibility()));
     connect(pQuitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-    connect(pSettingsAction, SIGNAL(triggered()), this, SIGNAL(settingsTriggered()));
     connect(pSystray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(systrayClicked(QSystemTrayIcon::ActivationReason)));
 }
@@ -76,7 +58,6 @@ void Engine::startPomodoro()
 {
     mStartTime = QTime::currentTime();
     mElapsedSeconds = 0;
-    setElapsed("0min 0sec");
     setActive(true);
     pTimer->start();
 
@@ -90,16 +71,10 @@ void Engine::startPomodoro()
 
 void Engine::interruptPomodoro()
 {
-    setElapsed("0min 0sec");
+    setElapsed("0:00");
     setActive(false);
     pTimer->stop();
 
-}
-
-bool Engine::alarmFileSet() const
-{
-    QSettings settings;
-    return !settings.value("alarm/file", QVariant("")).toString().isEmpty();
 }
 
 void Engine::setActive(bool active)
@@ -136,25 +111,9 @@ void Engine::toggleVisibility()
     }
 }
 
-void Engine::stopAlarm()
-{
-#ifdef QT5BUILD
-    pPlayer->stop();
-#endif
-}
-
-void Engine::setAlarmFile(const QString &file)
-{
-#ifdef QT5BUILD
-    pPlayer->setMedia(QMediaContent(QUrl::fromLocalFile(file)));
-#endif
-}
-
 void Engine::readSettings()
 {
     QSettings settings;
-    QString file = settings.value("alarm/file", QVariant("")).toString();
-    setAlarmFile(file);
     int duration = settings.value("pomodoro/duration", QVariant(25)).toInt();
     setPomodoroLength(duration);
 }
@@ -166,7 +125,7 @@ void Engine::tick()
     // update elapsed string
     int secs = mElapsedSeconds % 60;
     int mins = mElapsedSeconds / 60;
-    QString str = QString("%1min %2sec").arg(mins).arg(secs);
+    QString str = QString("%1:%2").arg(mins).arg(secs, 2, 10, QChar('0'));
     setElapsed(str);
 
     // check if ended
@@ -174,10 +133,7 @@ void Engine::tick()
         pTimer->stop();
         setActive(false);
 
-        pSystray->showMessage("Time's up", "Stop working faggot", QSystemTrayIcon::Critical, 30000);
-#ifdef QT5BUILD
-        pPlayer->play();
-#endif
+        QApplication::beep();
 
         if(pVisibilityAction->text() == "show") {
             toggleVisibility();

@@ -1,11 +1,11 @@
 /*
- Pomo - Crossplatform Pomodoro application
- Copyright (c) 2013 Timo Härkönen
+ Pomo - a simple Pomodoro application
+ Copyright (c) 2013, 2021 Timo Härkönen
 
- This program is free software; you can redistribute it and/or
- modify it under the terms of the GNU General Public License
- as published by the Free Software Foundation; either version 2
- of the License, or (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,8 +13,7 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with this program; if not, write to the Free Software
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef ENGINE_H
@@ -23,9 +22,6 @@
 #include <QObject>
 #include <QTimer>
 #include <QTime>
-#ifdef QT5BUILD
-#include <QMediaPlayer>
-#endif
 #include <QFile>
 #include <QSystemTrayIcon>
 
@@ -67,8 +63,6 @@ public slots:
     void setWindowVisible(bool visible);
     void toggleVisibility();
     void systrayClicked(QSystemTrayIcon::ActivationReason reason);
-    void stopAlarm();
-    void setAlarmFile(const QString &file);
     void readSettings();
 
 private slots:
@@ -87,12 +81,8 @@ private:
     QMenu *pMenu;
     QAction *pVisibilityAction;
     bool mWindowVisible;
-#ifdef QT5BUILD
-    QMediaPlayer *pPlayer;
-#endif
-    QFile mSoundFile;
     QAction *pQuitAction;
-    QAction *pSettingsAction;
+    //QAction *pSettingsAction;
 };
 
 #endif // ENGINE_H
